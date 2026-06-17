@@ -1,0 +1,346 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1280" font-family="Microsoft YaHei, SimHei, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#475569"/>
+    </marker>
+    <marker id="arrowDashed" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8"/>
+    </marker>
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1e3a5f;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="pageActive" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#eff6ff;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#bfdbfe;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="pageDialog" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fefce8;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#fef08a;stop-opacity:1"/>
+    </linearGradient>
+    <filter id="shadow" x="-3%" y="-3%" width="106%" height="106%">
+      <feDropShadow dx="1" dy="2" stdDeviation="3" flood-opacity="0.15"/>
+    </filter>
+    <filter id="shadowLight" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="0.5" dy="1" stdDeviation="1.5" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1100" height="1280" fill="#f1f5f9"/>
+
+  <!-- Title Bar -->
+  <rect x="0" y="0" width="1100" height="55" fill="url(#headerGrad)"/>
+  <text x="550" y="35" text-anchor="middle" fill="white" font-size="20" font-weight="bold">MiniClaude TUI 页面流程图 (Page Flow Diagram)</text>
+
+  <!-- ===== PAGE 1: 启动/连接界面 ===== -->
+  <rect x="40" y="80" width="320" height="430" rx="12" fill="url(#pageActive)" stroke="#2563eb" stroke-width="2" filter="url(#shadow)"/>
+  <!-- Page header -->
+  <rect x="40" y="80" width="320" height="35" rx="12" fill="#2563eb"/>
+  <rect x="40" y="100" width="320" height="15" fill="#2563eb"/>
+  <text x="200" y="103" text-anchor="middle" fill="white" font-size="14" font-weight="bold">页面 1: 启动 / 连接界面</text>
+
+  <!-- TUI mockup inside -->
+  <rect x="60" y="125" width="280" height="370" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <!-- Title bar -->
+  <rect x="60" y="125" width="280" height="28" rx="6" fill="#1e293b"/>
+  <rect x="60" y="140" width="280" height="13" fill="#1e293b"/>
+  <text x="200" y="144" text-anchor="middle" fill="#94a3b8" font-size="10">MiniClaude TUI</text>
+
+  <!-- Content area -->
+  <rect x="70" y="160" width="260" height="120" rx="4" fill="#1e293b"/>
+  <text x="200" y="210" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="bold">╔══════════════════╗</text>
+  <text x="200" y="228" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="bold">║  MiniClaude v0.0.1 ║</text>
+  <text x="200" y="246" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="bold">╚══════════════════╝</text>
+  <text x="200" y="270" text-anchor="middle" fill="#94a3b8" font-size="11">Connecting to daemon...</text>
+
+  <!-- Spinner -->
+  <rect x="163" y="290" width="74" height="22" rx="4" fill="#334155"/>
+  <text x="200" y="305" text-anchor="middle" fill="#fbbf24" font-size="10">⟳ 127.0.0.1:7437</text>
+
+  <!-- Bottom status -->
+  <rect x="70" y="320" width="260" height="55" rx="4" fill="#0f172a"/>
+  <text x="200" y="340" text-anchor="middle" fill="#64748b" font-size="10">Retrying in 2s... (attempt 1/3)</text>
+  <text x="200" y="358" text-anchor="middle" fill="#64748b" font-size="10">Ctrl+Q to exit</text>
+
+  <!-- Footer bar -->
+  <rect x="60" y="468" width="280" height="20" rx="0" fill="#1e293b"/>
+  <text x="200" y="482" text-anchor="middle" fill="#475569" font-size="9">status: disconnected | esc: quit | r: retry</text>
+
+  <!-- Annotation -->
+  <text x="200" y="525" text-anchor="middle" fill="#64748b" font-size="11">启动时自动连接 daemon，支持</text>
+  <text x="200" y="542" text-anchor="middle" fill="#64748b" font-size="11">3 次自动重连，显示重试状态</text>
+
+  <!-- Arrow to Page 2 (success) -->
+  <line x1="360" y1="295" x2="400" y2="295" stroke="#16a34a" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="380" y="288" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="bold">连接</text>
+  <text x="380" y="315" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="bold">成功</text>
+
+  <!-- Arrow to Page 5 (failure) -->
+  <path d="M200,518 L200,600" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6,3" fill="none" marker-end="url(#arrowDashed)"/>
+  <text x="210" y="555" fill="#94a3b8" font-size="10">连接失败</text>
+
+  <!-- ===== PAGE 2: 主聊天界面 ===== -->
+  <rect x="400" y="80" width="660" height="430" rx="12" fill="url(#pageActive)" stroke="#2563eb" stroke-width="2" filter="url(#shadow)"/>
+  <!-- Page header -->
+  <rect x="400" y="80" width="660" height="35" rx="12" fill="#2563eb"/>
+  <rect x="400" y="100" width="660" height="15" fill="#2563eb"/>
+  <text x="730" y="103" text-anchor="middle" fill="white" font-size="14" font-weight="bold">页面 2: 主聊天界面 (Chat Interface)</text>
+
+  <!-- TUI mockup -->
+  <rect x="420" y="125" width="620" height="370" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <!-- Title bar -->
+  <rect x="420" y="125" width="620" height="28" rx="6" fill="#1e293b"/>
+  <rect x="420" y="140" width="620" height="13" fill="#1e293b"/>
+  <text x="730" y="144" text-anchor="middle" fill="#94a3b8" font-size="10">MiniClaude TUI ─ Session: a1b2c3d4 ─ mode: chat ─ [Steps: 3]</text>
+
+  <!-- Message list area -->
+  <rect x="432" y="160" width="596" height="275" rx="4" fill="#0f172a"/>
+
+  <!-- User message -->
+  <rect x="442" y="170" width="280" height="24" rx="6" fill="#334155"/>
+  <text x="452" y="186" fill="#e2e8f0" font-size="11">You: 总结 README.md 的主要章节</text>
+
+  <!-- Assistant message -->
+  <rect x="442" y="202" width="576" height="120" rx="6" fill="#1e293b" stroke="#334155" stroke-width="0.5"/>
+  <text x="452" y="220" fill="#7dd3fc" font-size="11" font-weight="bold">🤖 Claude:</text>
+  <text x="462" y="238" fill="#bae6fd" font-size="11">MiniClaude 是一个本地 AI Agent Runtime...</text>
+  <text x="462" y="255" fill="#94a3b8" font-size="10" font-style="italic">(流式 token 实时渲染，支持 Markdown)</text>
+
+  <!-- Tool call block -->
+  <rect x="452" y="265" width="556" height="48" rx="4" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <text x="462" y="283" fill="#fbbf24" font-size="10">🔧 BashTool: cat README.md ▼</text>
+  <text x="462" y="300" fill="#64748b" font-size="9">⏳ Executing... | 0.5s</text>
+
+  <!-- Permission block -->
+  <rect x="452" y="265" width="556" height="48" rx="4" fill="#0f172a" stroke="#f59e0b" stroke-width="1"/>
+  <text x="462" y="283" fill="#fbbf24" font-size="10">🔐 Permission: BashTool → "cat README.md"</text>
+  <text x="462" y="300" fill="#f59e0b" font-size="9">[y]Allow [a]Always [n]Deny [d]Deny always</text>
+
+  <!-- Input area -->
+  <rect x="432" y="442" width="596" height="44" rx="4" fill="#1e293b"/>
+  <text x="445" y="462" fill="#94a3b8" font-size="11">▶ Type a message or /slash command...</text>
+  <rect x="1018" y="448" width="18" height="18" rx="3" fill="#475569"/>
+  <text x="1027" y="462" text-anchor="middle" fill="#94a3b8" font-size="9">⏎</text>
+
+  <!-- Annotations -->
+  <text x="730" y="525" text-anchor="middle" fill="#64748b" font-size="11">主交互界面: 消息列表(可滚动) + 输入区 + 状态栏</text>
+  <text x="730" y="542" text-anchor="middle" fill="#64748b" font-size="11">实时流式 LLM token | 工具调用块(可展开/折叠) | 内嵌权限审批</text>
+
+  <!-- Arrows from Page 2 -->
+  <path d="M730,518 L730,580" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="740" y="545" fill="#2563eb" font-size="10">发送消息</text>
+
+  <!-- ===== PAGE 3: 流式输出区 ===== -->
+  <rect x="40" y="580" width="320" height="310" rx="12" fill="url(#pageActive)" stroke="#3b82f6" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="40" y="580" width="320" height="35" rx="12" fill="#3b82f6"/>
+  <rect x="40" y="600" width="320" height="15" fill="#3b82f6"/>
+  <text x="200" y="603" text-anchor="middle" fill="white" font-size="14" font-weight="bold">页面 3: 流式输出区</text>
+
+  <rect x="60" y="625" width="280" height="245" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <rect x="60" y="625" width="280" height="28" rx="6" fill="#1e293b"/>
+  <rect x="60" y="640" width="280" height="13" fill="#1e293b"/>
+  <text x="200" y="644" text-anchor="middle" fill="#94a3b8" font-size="10">LLM Streaming Output</text>
+
+  <!-- Streaming tokens -->
+  <rect x="72" y="660" width="256" height="195" rx="4" fill="#0f172a"/>
+
+  <!-- Thinking block -->
+  <rect x="82" y="668" width="236" height="58" rx="4" fill="#1e293b" stroke="#475569" stroke-width="0.5"/>
+  <text x="92" y="684" fill="#818cf8" font-size="9">💭 Thinking:</text>
+  <text x="99" y="698" fill="#6366f1" font-size="9">analyzing README structure...</text>
+  <text x="99" y="712" fill="#6366f1" font-size="9">identifying main sections...</text>
+  <text x="99" y="722" fill="#4f46e5" font-size="9">▊ (streaming)</text>
+
+  <!-- Text block -->
+  <rect x="82" y="733" width="236" height="48" rx="4" fill="#1e293b" stroke="#475569" stroke-width="0.5"/>
+  <text x="92" y="750" fill="#94a3b8" font-size="9">MiniClaude is an educational</text>
+  <text x="92" y="764" fill="#94a3b8" font-size="9">local AI Agent Runtime that</text>
+  <text x="92" y="778" fill="#38bdf8" font-size="9">demonstrates...▌</text>
+
+  <!-- Tool use placeholder -->
+  <rect x="82" y="788" width="236" height="38" rx="4" fill="#1e293b" stroke="#f59e0b" stroke-width="0.5"/>
+  <text x="92" y="804" fill="#fbbf24" font-size="9">[Tool: read_file] pending...</text>
+  <text x="92" y="818" fill="#fbbf24" font-size="9">↓</text>
+
+  <text x="200" y="905" text-anchor="middle" fill="#64748b" font-size="11">LLM 推理过程和文本输出</text>
+  <text x="200" y="922" text-anchor="middle" fill="#64748b" font-size="11">实时流式渲染到 TUI</text>
+
+  <!-- ===== PAGE 4: 工具调用详情 (expandable) ===== -->
+  <rect x="400" y="580" width="320" height="310" rx="12" fill="url(#pageActive)" stroke="#10b981" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="400" y="580" width="320" height="35" rx="12" fill="#10b981"/>
+  <rect x="400" y="600" width="320" height="15" fill="#10b981"/>
+  <text x="560" y="603" text-anchor="middle" fill="white" font-size="14" font-weight="bold">页面 4: 工具调用详情</text>
+
+  <rect x="420" y="625" width="280" height="245" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <rect x="420" y="625" width="280" height="28" rx="6" fill="#1e293b"/>
+  <rect x="420" y="640" width="280" height="13" fill="#1e293b"/>
+  <text x="560" y="644" text-anchor="middle" fill="#94a3b8" font-size="10">Tool Call Block (expanded)</text>
+
+  <!-- Tool 1: Bash -->
+  <rect x="432" y="658" width="256" height="68" rx="4" fill="#1e293b" stroke="#10b981" stroke-width="0.5"/>
+  <text x="442" y="676" fill="#fbbf24" font-size="10">🔧 Bash ▼ (Ctrl+E)</text>
+  <text x="450" y="694" fill="#94a3b8" font-size="9" font-family="monospace">$ cat README.md</text>
+  <text x="450" y="712" fill="#4ade80" font-size="9">Executed in 0.5s | exit: 0</text>
+  <rect x="442" y="718" width="236" height="1" fill="#334155"/>
+
+  <!-- Tool result -->
+  <rect x="432" y="660" width="256" height="68" rx="4" fill="#1e293b" stroke="#10b981" stroke-width="0.5"/>
+  <text x="442" y="678" fill="#fbbf24" font-size="10">🔧 Bash ▼ (Ctrl+E)</text>
+  <text x="450" y="696" fill="#94a3b8" font-size="9" font-family="monospace">$ cat README.md</text>
+  <text x="450" y="714" fill="#4ade80" font-size="9">◀── result (64KB limit):</text>
+
+  <!-- Tool 2: Write File -->
+  <rect x="432" y="734" width="256" height="68" rx="4" fill="#1e293b" stroke="#3b82f6" stroke-width="0.5"/>
+  <text x="442" y="752" fill="#93c5fd" font-size="10">📝 WriteFile ▶ (Ctrl+E)</text>
+  <text x="450" y="770" fill="#94a3b8" font-size="9" font-family="monospace">→ summary.md</text>
+  <text x="450" y="788" fill="#93c5fd" font-size="9">Writing 1,024 bytes...</text>
+
+  <!-- Tool 3: MCP -->
+  <rect x="432" y="810" width="256" height="48" rx="4" fill="#1e293b" stroke="#8b5cf6" stroke-width="0.5"/>
+  <text x="442" y="828" fill="#c4b5fd" font-size="10">🔌 MCP: github__search_repos ▼</text>
+  <text x="450" y="846" fill="#94a3b8" font-size="9">params: {query: "opencode"}</text>
+
+  <text x="560" y="905" text-anchor="middle" fill="#64748b" font-size="11">工具调用块可展开/折叠 (Ctrl+E)</text>
+  <text x="560" y="922" text-anchor="middle" fill="#64748b" font-size="11">显示: 工具名 + 参数 + 执行时间 + 结果</text>
+
+  <!-- ===== PAGE 5: 权限审批弹窗 ===== -->
+  <rect x="760" y="580" width="300" height="310" rx="12" fill="url(#pageDialog)" stroke="#f59e0b" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="760" y="580" width="300" height="35" rx="12" fill="#f59e0b"/>
+  <rect x="760" y="600" width="300" height="15" fill="#f59e0b"/>
+  <text x="910" y="603" text-anchor="middle" fill="white" font-size="14" font-weight="bold">页面 5: 权限审批弹窗</text>
+
+  <rect x="780" y="625" width="260" height="245" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <rect x="780" y="625" width="260" height="28" rx="6" fill="#1e293b"/>
+  <rect x="780" y="640" width="260" height="13" fill="#1e293b"/>
+  <text x="910" y="644" text-anchor="middle" fill="#f59e0b" font-size="10">Permission Required ⚠</text>
+
+  <!-- Dialog content -->
+  <rect x="792" y="660" width="236" height="195" rx="4" fill="#1e293b"/>
+
+  <text x="802" y="680" fill="#fbbf24" font-size="10" font-weight="bold">BashTool</text>
+  <rect x="802" y="690" width="216" height="1" fill="#475569"/>
+
+  <text x="802" y="710" fill="#94a3b8" font-size="9">Tool Description:</text>
+  <text x="802" y="725" fill="#e2e8f0" font-size="9">Execute shell commands in the</text>
+  <text x="802" y="740" fill="#e2e8f0" font-size="9">workspace directory.</text>
+  <text x="802" y="758" fill="#94a3b8" font-size="9">Arguments:</text>
+  <text x="802" y="773" fill="#e2e8f0" font-size="9" font-family="monospace">command: cat README.md</text>
+  <text x="802" y="790" fill="#94a3b8" font-size="9">Directory: /workspace</text>
+
+  <rect x="802" y="805" width="216" height="1" fill="#475569"/>
+
+  <!-- Buttons -->
+  <rect x="802" y="815" width="50" height="22" rx="4" fill="#166534"/>
+  <text x="827" y="831" text-anchor="middle" fill="#4ade80" font-size="10">[Y]Allow</text>
+  <rect x="858" y="815" width="50" height="22" rx="4" fill="#166534"/>
+  <text x="883" y="831" text-anchor="middle" fill="#4ade80" font-size="10">[A]Always</text>
+  <rect x="914" y="815" width="50" height="22" rx="4" fill="#991b1b"/>
+  <text x="939" y="831" text-anchor="middle" fill="#fca5a5" font-size="10">[N]Deny</text>
+  <rect x="970" y="815" width="50" height="22" rx="4" fill="#991b1b"/>
+  <text x="995" y="831" text-anchor="middle" fill="#fca5a5" font-size="10">[D]Always</text>
+
+  <text x="910" y="878" text-anchor="middle" fill="#64748b" font-size="9">Timeout: 55s remaining</text>
+
+  <text x="910" y="905" text-anchor="middle" fill="#64748b" font-size="11">工具调用前弹出权限审批</text>
+  <text x="910" y="922" text-anchor="middle" fill="#64748b" font-size="11">4 个选项 + 60s 超时自动拒绝</text>
+
+  <!-- Arrow back to Page 2 -->
+  <path d="M910,568 L910,518" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="922" y="540" fill="#f59e0b" font-size="9">返回</text>
+
+  <!-- ===== PAGE 6: 斜杠命令选择器 ===== -->
+  <rect x="40" y="920" width="320" height="320" rx="12" fill="url(#pageActive)" stroke="#8b5cf6" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="40" y="920" width="320" height="35" rx="12" fill="#8b5cf6"/>
+  <rect x="40" y="940" width="320" height="15" fill="#8b5cf6"/>
+  <text x="200" y="943" text-anchor="middle" fill="white" font-size="14" font-weight="bold">页面 6: 斜杠命令选择器</text>
+
+  <rect x="60" y="965" width="280" height="255" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <rect x="60" y="965" width="280" height="28" rx="6" fill="#1e293b"/>
+  <rect x="60" y="980" width="280" height="13" fill="#1e293b"/>
+  <text x="200" y="984" text-anchor="middle" fill="#c4b5fd" font-size="10">▶ /| (slash command)</text>
+
+  <rect x="72" y="1000" width="256" height="205" rx="4" fill="#1e293b"/>
+
+  <!-- Command list -->
+  <rect x="82" y="1008" width="236" height="22" rx="3" fill="#3730a3"/>
+  <text x="92" y="1023" fill="#c7d2fe" font-size="10">/summarize         AI summarize file</text>
+
+  <rect x="82" y="1035" width="236" height="22" rx="3" fill="#0f172a"/>
+  <text x="92" y="1050" fill="#94a3b8" font-size="10">/compact             Compress context</text>
+
+  <rect x="82" y="1062" width="236" height="22" rx="3" fill="#0f172a"/>
+  <text x="92" y="1077" fill="#94a3b8" font-size="10">/new                  New session</text>
+
+  <rect x="82" y="1089" width="236" height="22" rx="3" fill="#0f172a"/>
+  <text x="92" y="1104" fill="#94a3b8" font-size="10">/sessions             List sessions</text>
+
+  <rect x="82" y="1116" width="236" height="22" rx="3" fill="#0f172a"/>
+  <text x="92" y="1131" fill="#94a3b8" font-size="10">/trace                View trace logs</text>
+
+  <rect x="82" y="1143" width="236" height="22" rx="3" fill="#0f172a"/>
+  <text x="92" y="1158" fill="#94a3b8" font-size="10">/help                 Show help</text>
+
+  <rect x="82" y="1170" width="236" height="22" rx="3" fill="#0f172a"/>
+  <text x="92" y="1185" fill="#94a3b8" font-size="10">Ctrl+Space           Trigger autocomplete</text>
+
+  <text x="200" y="1255" text-anchor="middle" fill="#64748b" font-size="11">输入 / 触发斜杠命令选择</text>
+  <text x="200" y="1272" text-anchor="middle" fill="#64748b" font-size="11">上下选择 + Enter 确认</text>
+
+  <!-- ===== PAGE 7: 断开/重连 ===== -->
+  <rect x="400" y="920" width="300" height="200" rx="12" fill="#fee2e2" stroke="#ef4444" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="400" y="920" width="300" height="35" rx="12" fill="#ef4444"/>
+  <rect x="400" y="940" width="300" height="15" fill="#ef4444"/>
+  <text x="550" y="943" text-anchor="middle" fill="white" font-size="14" font-weight="bold">页面 7: 断开 / 重连状态</text>
+
+  <rect x="420" y="965" width="260" height="135" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <rect x="420" y="965" width="260" height="28" rx="6" fill="#1e293b"/>
+  <rect x="420" y="980" width="260" height="13" fill="#1e293b"/>
+  <text x="550" y="984" text-anchor="middle" fill="#fca5a5" font-size="10">⚠ Connection Lost</text>
+
+  <rect x="432" y="1000" width="236" height="85" rx="4" fill="#1e293b"/>
+  <text x="550" y="1020" text-anchor="middle" fill="#fca5a5" font-size="11">⚠ Daemon connection lost</text>
+  <text x="550" y="1040" text-anchor="middle" fill="#94a3b8" font-size="10">Attempting to reconnect...</text>
+  <rect x="470" y="1050" width="160" height="18" rx="3" fill="#334155"/>
+  <text x="550" y="1064" text-anchor="middle" fill="#fbbf24" font-size="10">⟳ 127.0.0.1:7437 Retry 1/3</text>
+  <rect x="470" y="1072" width="160" height="6" rx="3" fill="#1e293b"/>
+  <rect x="470" y="1072" width="80" height="6" rx="3" fill="#3b82f6"/>
+
+  <text x="550" y="1130" text-anchor="middle" fill="#64748b" font-size="11">连接中断时自动重连</text>
+  <text x="550" y="1147" text-anchor="middle" fill="#64748b" font-size="11">最多 3 次重试</text>
+
+  <!-- Arrows between pages -->
+  <path d="M730,518 L730,580" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M730,920 L730,880" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Back arrow Page 7 → Page 1 -->
+  <path d="M400,1020 L320,1020" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="355" y="1055" fill="#ef4444" font-size="9">连接丢失</text>
+
+  <!-- ===== PAGE 8: CLI 命令界面 (simplified) ===== -->
+  <rect x="740" y="920" width="320" height="200" rx="12" fill="url(#pageActive)" stroke="#64748b" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="740" y="920" width="320" height="35" rx="12" fill="#64748b"/>
+  <rect x="740" y="940" width="320" height="15" fill="#64748b"/>
+  <text x="900" y="943" text-anchor="middle" fill="white" font-size="14" font-weight="bold">页面 8: CLI 命令行界面</text>
+
+  <rect x="760" y="965" width="280" height="135" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <rect x="760" y="965" width="280" height="28" rx="6" fill="#1e293b"/>
+  <rect x="760" y="980" width="280" height="13" fill="#1e293b"/>
+  <text x="900" y="984" text-anchor="middle" fill="#94a3b8" font-size="10">Terminal</text>
+
+  <rect x="772" y="1000" width="256" height="85" rx="4" fill="#1e293b"/>
+  <text x="782" y="1018" fill="#4ade80" font-size="9" font-family="monospace">$ uv run mini run --goal "summary"</text>
+  <text x="782" y="1036" fill="#94a3b8" font-size="9" font-family="monospace">[AGENT] Step 1: Thinking...</text>
+  <text x="782" y="1050" fill="#94a3b8" font-size="9" font-family="monospace">[TOOL] read_file README.md</text>
+  <text x="782" y="1064" fill="#94a3b8" font-size="9" font-family="monospace">[PERM] BashTool: (auto-allowed)</text>
+  <text x="782" y="1078" fill="#4ade80" font-size="9" font-family="monospace">[DONE] Run finished (3 steps, 4.2s)</text>
+
+  <text x="900" y="1130" text-anchor="middle" fill="#64748b" font-size="11">CLI 模式: 命令行交互</text>
+  <text x="900" y="1147" text-anchor="middle" fill="#64748b" font-size="11">ping | run | chat | core | trace</text>
+
+  <!-- Global navigation summary -->
+  <rect x="40" y="1180" width="1020" height="80" rx="12" fill="white" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadowLight)"/>
+  <text x="550" y="1205" text-anchor="middle" fill="#475569" font-size="14" font-weight="bold">页面导航关系总结</text>
+  <text x="550" y="1230" text-anchor="middle" fill="#64748b" font-size="12">启动连接 → 主聊天界面 ⟷ 流式输出 / 工具调用 / 权限弹窗 / 斜杠命令; CLI 独立入口</text>
+  <text x="550" y="1250" text-anchor="middle" fill="#64748b" font-size="12">核心可交互组件: 消息输入框 | 流式 LLM Token 展示 | 工具调用展开/折叠 | 内嵌权限审批 | 斜杠命令选择器</text>
+</svg>
