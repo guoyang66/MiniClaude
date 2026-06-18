@@ -7,81 +7,107 @@ import time
 from typing import Any
 
 from mini_claude.core.config import MiniConfig
-from mini_claude.core.transport.socket_client import IpcError, SocketClient
+from mini_claude.core.langgraph.runner import LangGraphRunner
 
 
 class StdoutPrinter:
-    # 接收 dict 格式的事件并将运行进度格式化打印到终端
-    def __init__(self) -> None:
-        self._inline = False  # True while LLM tokens are mid-line
-        self._run_start: float = 0.0
+    """astream_events 输出格式化器，直接消费 RunStreamEvent"""
 
-    # 若当前行有未换行的 token，补一个换行符
+    def __init__(self) -> None:
+        self._inline = False
+        self._run_start: float = 0.0
+        self._step = 0
+
     def _ensure_newline(self) -> None:
         if self._inline:
-            sys.stdout.write("\n")
-            sys.stdout.flush()
+            print()
             self._inline = False
 
-    # 根据事件 type 字段分发并格式化打印到 stdout/stderr
-    async def handle(self, event: dict[str, Any]) -> None:
-        t = event.get("type", "")
+    async def handle(self, event_type: str | dict[str, Any], data: dict[str, Any] | None = None) -> int | None:
+        """处理单个事件。兼容两种调用方式：
+         - handle(dict) — daemon IPC 路径和测试
+         - handle(event_type, data) — LangGraph astream_events 路径
+        返回 exit_code 或 None"""
+        if isinstance(event_type, dict):
+            event = event_type
+            event_type = event.get("type", "")
+            data = event
 
-        if t == "run.started":
+        if data is None:
+            data = {}
+
+        type_aliases: dict[str, str] = {
+            "run.started": "run_start",
+            "run.finished": "run_finished",
+            "step.started": "step_start",
+            "step.finished": "step_end",
+            "llm.token": "llm_token",
+            "tool.call_started": "tool_start",
+            "tool.call_finished": "tool_end",
+            "tool.call_failed": "tool_end",
+            "llm.usage": "llm_usage",
+            "permission.requested": "permission_request",
+        }
+        event_type = type_aliases.get(event_type, event_type)
+
+        if event_type == "run_start":
             self._run_start = time.monotonic()
-            sys.stdout.write(f"[run] {event.get('run_id', '')}\n")
-            sys.stdout.flush()
+            print(f"[run] {data.get('run_id', '')} goal={data.get('goal', '')}")
 
-        elif t == "step.started":
+        elif event_type == "step_start":
             self._ensure_newline()
-            sys.stdout.write(f"[step {event.get('step')}] planning...\n")
-            sys.stdout.flush()
+            self._step = data.get("step", self._step)
+            print(f"[step {self._step}] plan...")
 
-        elif t == "llm.token":
-            sys.stdout.write(event.get("token", ""))
-            sys.stdout.flush()
-            self._inline = True
+        elif event_type == "step_end":
+            print(f"[step {self._step}] done")
 
-        elif t == "tool.call_started":
+        elif event_type == "llm_token":
+            token = data.get("token", "")
+            if token:
+                print(token, end="", flush=True)
+                self._inline = True
+
+        elif event_type == "tool_start":
             self._ensure_newline()
-            params_str = json.dumps(event.get("params", {}), ensure_ascii=False)
-            sys.stdout.write(f"[tool] {event.get('tool_name', '')} {params_str}\n")
-            sys.stdout.flush()
+            params = data.get("tool_input") or data.get("params", {})
+            params_str = json.dumps(params, ensure_ascii=False)
+            print(f"[tool] {data.get('tool_name', '')} {params_str}")
 
-        elif t == "tool.call_finished":
-            sys.stdout.write(
-                f"[tool] {event.get('tool_name', '')} \u2713  {event.get('elapsed_ms')}ms\n"
-            )
-            sys.stdout.flush()
+        elif event_type == "tool_end":
+            print(f"[tool] {data.get('tool_name', '')} OK")
 
-        elif t == "tool.call_failed":
-            sys.stderr.write(
-                f"[tool] {event.get('tool_name', '')} \u2717  {event.get('error_message', '')}\n"
-            )
-            sys.stderr.flush()
-
-        elif t == "step.finished":
+        elif event_type == "permission_request":
             self._ensure_newline()
-            sys.stdout.write(f"[step {event.get('step')}] done\n")
-            sys.stdout.flush()
+            tool_name = data.get("tool_name", "unknown")
+            args = data.get("args", {})
+            print(f"[perm] Tool '{tool_name}' needs approval: {json.dumps(args, ensure_ascii=False)}")
+            print("[perm] [y]Allow [a]Always allow [n]Deny [d]Deny always")
 
-        elif t == "run.finished":
+        elif event_type == "run_finished":
             self._ensure_newline()
             elapsed = time.monotonic() - self._run_start
-            sys.stdout.write(
-                f"[run] {event.get('status', '')}  {event.get('steps')} steps  {elapsed:.1f}s\n"
-            )
-            sys.stdout.flush()
+            status = data.get("status", "?")
+            steps = data.get("steps", self._step)
+            reason = data.get("reason", "")
+            print(f"[run] {status}  {steps} steps  {elapsed:.1f}s")
+            if reason:
+                print(f"[run] reason: {reason}")
+            return 0 if status == "success" else 1
+
+        return None
 
 
-# 异步核心：连接 daemon，订阅事件，触发 run，等待 run.finished
+# 异步核心：优先 daemon，否则本地 LangGraph 运行
 async def _run_async(goal: str, config: MiniConfig) -> int:
+    from mini_claude.core.transport.socket_client import IpcError, SocketClient
+
     client = SocketClient(config.host, config.port)
     try:
         await client.connect()
     except (ConnectionRefusedError, OSError):
-        print(f"error: core not running ({config.host}:{config.port})", file=sys.stderr)
-        return 1
+        await client.close()
+        return await _run_langgraph_stream(goal, config)
 
     printer = StdoutPrinter()
     finished = asyncio.Event()
@@ -89,23 +115,22 @@ async def _run_async(goal: str, config: MiniConfig) -> int:
 
     async def on_event(event: dict[str, Any]) -> None:
         nonlocal exit_code
-        await printer.handle(event)
+        rc = await printer.handle(event)
         if event.get("type") == "run.finished":
             if event.get("status") != "success":
                 exit_code = 1
             finished.set()
+        if rc is not None:
+            exit_code = rc
 
     client.on_event(on_event)
     loop_task = asyncio.create_task(client.run_event_loop())
 
     try:
-        await client.send_command(
-            "event.subscribe",
-            {
-                "topics": ["run.*", "step.*", "tool.*", "llm.token", "llm.usage"],
-                "scope": "global",
-            },
-        )
+        await client.send_command("event.subscribe", {
+            "topics": ["run.*", "step.*", "tool.*", "llm.token", "llm.usage"],
+            "scope": "global",
+        })
         await client.send_command("agent.run", {"goal": goal})
     except IpcError as e:
         print(f"error: {e}", file=sys.stderr)
@@ -114,7 +139,6 @@ async def _run_async(goal: str, config: MiniConfig) -> int:
         return 1
 
     await finished.wait()
-
     loop_task.cancel()
     try:
         await loop_task
@@ -122,6 +146,27 @@ async def _run_async(goal: str, config: MiniConfig) -> int:
         pass
 
     await client.close()
+    return exit_code
+
+
+# 本地 LangGraph 流式运行（使用 astream_events）
+async def _run_langgraph_stream(goal: str, config: MiniConfig) -> int:
+    print(f"[langgraph] running locally model={config.llm.default_model} goal={goal[:80]}...")
+
+    printer = StdoutPrinter()
+    printer._run_start = time.monotonic()
+    runner = LangGraphRunner(config)
+    exit_code = 0
+
+    try:
+        async for evt in runner.run_stream(goal=goal):
+            rc = printer.handle(evt.event_type, evt.data)
+            if rc is not None:
+                exit_code = rc
+    except KeyboardInterrupt:
+        print("\n[langgraph] cancelled")
+        return 130
+
     return exit_code
 
 

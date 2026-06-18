@@ -91,11 +91,7 @@ class AgentLoop:
             # [act] execute each requested tool; errors become tool results so loop continues
             if response.stop_reason == "tool_use":
                 for tc in response.tool_calls:
-                    result = await invoke_tool(
-                        self._registry, tc, self._bus, context.run_id,
-                        permission_manager=self._permission_manager,
-                        session_id=self._session_id,
-                    )
+                    result = await invoke_tool(self._registry, tc)
                     context.add_tool_result(tc.id, result.content, is_error=result.is_error)
             elif response.stop_reason == "max_tokens" and response.tool_calls:
                 # Output token limit hit mid-tool-call; input is incomplete.

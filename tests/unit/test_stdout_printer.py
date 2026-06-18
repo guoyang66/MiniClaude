@@ -24,7 +24,7 @@ async def test_step_started_prints_step_number(capsys: pytest.CaptureFixture[str
     await printer.handle({"type": "step.started", "run_id": "r", "step": 3, "ts": "t"})
     out = capsys.readouterr().out
     assert "[step 3]" in out
-    assert "planning" in out
+    assert "plan" in out
 
 
 # 功能：验证 llm.token 事件将 token 无换行打印并设置 _inline 标志

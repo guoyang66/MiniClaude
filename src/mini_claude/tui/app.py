@@ -19,6 +19,7 @@ from textual.widget import Widget
 from textual.widgets import Label, Static, TextArea
 
 from mini_claude.core.config import MiniConfig
+from mini_claude.core.langgraph.runner import LangGraphRunner, RunStreamEvent
 from mini_claude.core.skills.loader import SkillLoader
 from mini_claude.core.transport.socket_client import IpcError, SocketClient
 
@@ -612,11 +613,22 @@ class MiniTuiApp(App[None]):
         content = event.value.strip()
         if not content:
             return
-        # 检测 /compact 指令
         if content == "/compact":
             event.text_area.text = ""
             if self._client is not None and self._session_id is not None and not self._busy:
                 self.run_worker(self._do_compact(), name="compact", exclusive=False)
+            return
+        # 本地 LangGraph 模式
+        if getattr(self, "_local_mode", False):
+            self._busy = True
+            p = event.text_area
+            p.text = ""
+            p.disabled = True
+            p.read_only = False
+            p.border_title = "agent is working..."
+            self._append(Static(f"[bold]>[/bold] {content}", classes="user-turn"))
+            self._update_header("running")
+            self.run_worker(self._run_local_langgraph(content), name="langgraph_run", exclusive=False)
             return
         if self._client is None or self._session_id is None or self._busy:
             self._append(Static("[yellow]agent busy or disconnected[/yellow]", classes="log-line"))
@@ -755,6 +767,81 @@ class MiniTuiApp(App[None]):
             f"{session}  [{color}]{state}[/{color}]"
         )
 
+    # ── 本地 LangGraph 运行（daemon 不可用时自动降级）──
+    async def _run_local_langgraph(self, content: str) -> None:
+        self._busy = True
+        self._current_llm = None
+        self._update_header("running")
+        self._append(Static(f"[dim]▶ user[/dim]  {content}", classes="log-line user"))
+        self._append(Static("[bold yellow]langgraph mode (no daemon)[/bold yellow]", classes="log-line"))
+
+        runner = LangGraphRunner(self._config)
+        try:
+            async for evt in runner.run_stream(goal=content):
+                self._handle_stream_event(evt)
+        except Exception as exc:
+            log.exception("local langgraph run failed")
+            self._append(Static(f"[red]error: {exc}[/red]", classes="log-line"))
+        finally:
+            self._break_llm()
+            self._busy = False
+            self._update_header("ready")
+            p = self._prompt()
+            if p is not None:
+                p.disabled = False
+                p.read_only = False
+                p.border_title = "type a message — enter to send"
+                p.focus()
+
+    def _handle_stream_event(self, evt: RunStreamEvent) -> None:
+        et = evt.event_type
+        d = evt.data
+        if et == "step_start":
+            self._handle_event_inner({"type": "step.started", "step": d.get("step", 0)})
+        elif et == "step_end":
+            self._handle_event_inner({"type": "step.finished", "step": d.get("step", 0)})
+        elif et == "llm_token":
+            self._handle_event_inner({"type": "llm.token", "token": d.get("token", "")})
+        elif et == "tool_start":
+            self._handle_event_inner({
+                "type": "tool.call_started",
+                "tool_use_id": d.get("tool_input", {}).get("id", ""),
+                "tool_name": d.get("tool_name", ""),
+                "params": d.get("tool_input", {}),
+            })
+        elif et == "tool_end":
+            self._handle_event_inner({
+                "type": "tool.call_finished",
+                "tool_name": d.get("tool_name", ""),
+                "output": d.get("output", ""),
+            })
+        elif et == "permission_request":
+            self._handle_event_inner({
+                "type": "permission.requested",
+                "tool_use_id": d.get("tool_call_id", ""),
+                "tool_name": d.get("tool_name", ""),
+                "params": d.get("args", {}),
+            })
+        elif et == "run_finished":
+            self._handle_event_inner({
+                "type": "run.finished",
+                "status": d.get("status", "success"),
+                "steps": d.get("step", 0),
+            })
+
+    # ── 本地 LangGraph 输入循环 ──
+    async def _run_local_loop(self) -> None:
+        self._busy = False
+        self._local_mode = True
+        p = self._prompt()
+        if p is not None:
+            p.disabled = False
+            p.read_only = False
+            p.border_title = "type a message (local LangGraph) — enter to send"
+            p.focus()
+        while True:
+            await asyncio.sleep(0.5)
+
     # 管理 SocketClient 生命周期：连接、订阅事件、断线重连
     async def _socket_loop(self) -> None:
         header = self.query_one("#header", Label)
@@ -765,9 +852,9 @@ class MiniTuiApp(App[None]):
             try:
                 await client.connect()
             except (ConnectionRefusedError, OSError):
-                log.warning("connection refused %s:%s, retrying", self._host, self._port)
-                self._update_header("disconnected")
-                await asyncio.sleep(2)
+                log.warning("connection refused %s:%s, falling back to local LangGraph", self._host, self._port)
+                header.update("[bold]MiniClaude[/bold]  [yellow]langgraph (no daemon)[/yellow]")
+                await self._run_local_loop()
                 continue
 
             log.info("connected to %s:%s", self._host, self._port)
